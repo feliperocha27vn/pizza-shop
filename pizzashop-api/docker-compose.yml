@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: bitnami/postgresql:latest
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=pizzashop
+    volumes:
+      - postgres_data:/bitnami/postgresql
+
+  api:
+    build: .
+    ports:
+      - '3333:3333'
+    depends_on:
+      - postgres
+    environment:
+      - API_BASE_URL=http://localhost:3333
+      - AUTH_REDIRECT_URL=http://localhost:5173
+      - DB_URL=postgresql://docker:docker@postgres:5432/pizzashop
+      - JWT_SECRET_KEY=your-super-secret-jwt-key-here
+      - RESEND_API_KEY=your-resend-api-key-here
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
